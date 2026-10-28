@@ -43,9 +43,10 @@ resource "proxmox_virtual_environment_vm" "vm" {
 
     user_account {
       username = "ubuntu"
-      keys = [var.ssh_public_key]
+      keys     = var.ssh_public_keys
     }
   }
-
-
+  agent {
+    enabled = true
+  }
 }

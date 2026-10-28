@@ -1,0 +1,31 @@
+- name: Common Setup for all servers
+  hosts: all
+  tasks:
+    - name: Install common packages
+      ansible.builtin.apt:
+        name:
+          - curl
+          - vim
+          - git
+          - htop
+          - qemu-guest-agent
+          - unattended-upgrades
+        state: present
+
+    - name: Make sure guest agent is running
+      ansible.builtin.service:
+        name: qemu-guest-agent
+        state: started
+        enabled: true
+
+    - name: Set timezone
+      community.general.timezone:
+        name: America/Chicago
+
+    - name: turn on automatic security updates
+      ansible.builtin.copy:
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        content: |
+          APT::Periodic::Update-Package-Lists "1";
+          APT::Periodic::Unattended-Upgrade "1";
+        mode: "0644"

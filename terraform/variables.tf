@@ -28,9 +28,9 @@ variable "dns_servers" {
   default     = ["10.0.0.1"]
 }
 
-variable "ssh_public_key" {
-  description = "Public ssh key"
-  type        = string
+variable "ssh_public_keys" {
+  description = "Public ssh keys"
+  type        = list(string)
 }
 
 variable "vms" {
