@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate-db
+  namespace: game-tracker
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: ghcr-pull
+      containers:
+        - name: migrate-db
+          image: ghcr.io/cel6586/game-tracker-api:f39c1cba5ec97ab16e509354718c33afc57f2264
+          command: ["alembic", "upgrade", "head"]
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: game-tracker-secrets
+                  key: POSTGRES_PASSWORD
+            - name: DATABASE_URL
+              value: postgresql+psycopg://gtadmin:$(POSTGRES_PASSWORD)@db:5432/gametracker
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: game-tracker-secrets
+                  key: SECRET_KEY

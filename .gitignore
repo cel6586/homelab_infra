@@ -5,3 +5,8 @@
 *.tfvars
 crash.log
 tfplan
+
+# Claude Code
+CLAUDE.md
+apps/game-tracker/secret.yml
+apps/game-tracker/ghcr-pull.yml
