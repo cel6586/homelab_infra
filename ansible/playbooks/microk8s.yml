@@ -6,6 +6,11 @@
         name: microk8s
         classic: true
 
+    - name: install helm
+      community.general.snap:
+        name: helm
+        classic: true
+
     - name: Let the ubuntu user run microk8s commands
       ansible.builtin.user:
         name: ubuntu
@@ -15,7 +20,32 @@
     - name: Wait until Microk8s is ready
       ansible.builtin.command: microk8s status --wait-ready
       changed_when: false
+      
+    - name: alias microk8s
+      ansible.builtin.command: snap alias microk8s.kubectl kubectl
+      args:
+        creates: /snap/bin/kubectl   
 
     - name: Enable add-ons
       ansible.builtin.command: microk8s enable dns hostpath-storage ingress
       changed_when: false
+
+    - name: Make Kubeconfig folder
+      ansible.builtin.file:
+        path: /home/ubuntu/.kube
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: "0700"
+
+    - name: Write the kubeconfig
+      ansible.builtin.shell: microk8s config > /home/ubuntu/.kube/config
+      args:
+        creates: /home/ubuntu/.kube/config
+
+    - name: Lock down kubeconfig
+      ansible.builtin.file:
+        path: /home/ubuntu/.kube/config
+        owner: ubuntu
+        group: ubuntu
+        mode: "0600"
