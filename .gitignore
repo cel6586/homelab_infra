@@ -5,8 +5,8 @@
 *.tfvars
 crash.log
 tfplan
+aws-backup.yml
 
-# Claude Code
 CLAUDE.md
 apps/game-tracker/secret.yml
 apps/game-tracker/ghcr-pull.yml
