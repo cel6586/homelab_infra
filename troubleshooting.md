@@ -11,3 +11,6 @@ Ansible failed with `ssh_askpass: exec(/usr/bin/ssh-askpass): No such file or di
 
 ## Ansible ignored ansible.cfg
 Ansible ignored `ansible.cfg` and reported an empty hosts list, with the warning `Ansible is being run in a world writable directory`. Linux treats the folder as world writable because it is stored on my Windows drive. I set the environment variable `ANSIBLE_CONFIG` to the path of the file so Ansible uses it anyway.
+
+## The AWS CLI backup pod crashed: CPU does not support x86-64-v2
+My first test of the backup job failed in the `upload` container with `Fatal glibc error: CPU does not support x86-64-v2`. The `amazon/aws-cli` image needs newer CPU features, and my VMs used Proxmox's default CPU type (`qemu64`), which hides them from the VM. I added `type = "host"` to the `cpu` block in `main.tf`, which passes the real CPU through, and ran `terraform apply`. The VMs restarted and the backup test uploaded to S3.

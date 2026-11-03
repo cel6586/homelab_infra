@@ -1,0 +1,28 @@
+# Values for the kube-prometheus-stack Helm chart (Prometheus, Grafana, Alertmanager).
+# Anything not set here uses the chart's defaults.
+
+grafana:
+  persistence:
+    enabled: true
+    size: 2Gi
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - grafana.homelab.internal
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki.observability.svc.cluster.local:3100
+prometheus:
+  prometheusSpec:
+    retention: 7d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: microk8s-hostpath
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi

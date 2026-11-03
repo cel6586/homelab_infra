@@ -51,3 +51,4 @@ Game server that faces the internet.  If there is a game im wanting to host, and
 - where do builds run
 - network layout - how to reach VM from my desktop and best way to set this up from another machine
 - If i want to expose it to the internet, how do i do that, and whats the safest way.
+- How to automate the rest of the Kubernetes setup that the push-based CI deploy does not cover (the one-time `kubectl apply` files in `apps/`, monitoring, the runner registration). Options: a CI job in this repo, Ansible, or Argo CD. If Argo CD turns out to be the best course, "No ArgoCD / GitOps" in out of scope changes. Secrets need Vault either way.

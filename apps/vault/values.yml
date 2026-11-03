@@ -1,0 +1,11 @@
+ui:
+  enabled: true
+
+server:
+  dataStorage:
+    storageClass: microk8s-hostpath
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - host: vault.homelab.internal
