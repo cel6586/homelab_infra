@@ -18,11 +18,15 @@ Why: Get more experience with monitoring and this seems to be the standard way t
 
 ## Loki for logs
 Decision: Add Loki to the cluster next to Prometheus and Grafana, and read the logs in Grafana.
-Why: Prometheus shows metrics, such as a pod being unhealthy, but not why. Logs give the reason. Loki is lightweight compared with other log stacks and plugs straight into Grafana. It is added after Prometheus and Grafana work, and only if RAM on the `k8s` VM allows.
+Why: Prometheus shows metrics, such as a pod being unhealthy, but not why. Loki is lightweight compared with other log stacks and plugs straight into Grafana. It is added after Prometheus and Grafana work, and only if RAM on the `k8s` VM allows.
 
 ## Push-based deploys with Helm, no ArgoCD
 Decision: Deploy with `kubectl apply`, then a Helm chart, then a CI job running `helm upgrade --install`.
 Why: Want to get more experience on helm and I already worked a little with ArgoCd on a previous tutorial
+
+## Argo Cd -
+Decision: changed mind, doing the homelab infrstrucutre deploy with argoCD
+why: To get more experience with differnet methods of deployment
 
 ## Postgres backups with pg_dump
 Decision: Back up Postgres with a scheduled `pg_dump`, stored off the VM.

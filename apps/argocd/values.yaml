@@ -1,0 +1,12 @@
+configs:
+  params:
+    server.insecure: true
+
+server:
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hostname: argocd.homelab.internal
+    annotations:
+      cert-manager.io/cluster-issuer: homelab-ca
+    tls: true

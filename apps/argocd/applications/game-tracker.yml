@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: game-tracker
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/cel6586/homelab_infra
+    targetRevision: main
+    path: apps/game-tracker
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: game-tracker
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
