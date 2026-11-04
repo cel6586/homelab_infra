@@ -8,8 +8,14 @@ grafana:
   ingress:
     enabled: true
     ingressClassName: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: homelab-ca
     hosts:
       - grafana.homelab.internal
+    tls:
+      - secretName: grafana-tls
+        hosts:
+          - grafana.homelab.internal
   additionalDataSources:
     - name: Loki
       type: loki
