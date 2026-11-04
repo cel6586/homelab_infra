@@ -20,7 +20,7 @@ Creating a homelab: a single always on server (on an HP prodesk) running proxmox
 - Replace windows with Proxmox.  Use terraform to automate creation of VMs, and use ansible to set up what is required on each VM
 
 # VM 1 - Kubernetes with game-tracker
-Single node MicroK8s cluster and will host the game-tracker app.  the same VM runs prometheus/grafana for monitoring and vault for secrets.
+Single node MicroK8s cluster and will host the game-tracker app.  the same VM runs prometheus/grafana for monitoring and vault for secrets and Loki for logs.  Did a CI push with github runner for game-tracker deploy.  Later on changed my mind on homelab deploy and am going to use ARGO cd for that deploy
 
 # VM 2 - GitLab
 The second VM will run Gitlab and a CI runner for the pipelines jobs.
@@ -42,7 +42,7 @@ Game server that faces the internet.  If there is a game im wanting to host, and
 8. VM 2 and VM3
 
 # out of scope
-- No arcoCD / gitops
+- No arcoCD / gitops.  Changed mind, going to do ArgoCd for infrastucture repo.  WIll leave game-tracker repo with CI push and github runner for now.  Changed my mind to get more experience with pull based deploy
 
 # Backups
 - Only need to back up postgres database. do a postgres dump to another on schedule
