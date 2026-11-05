@@ -1,4 +1,4 @@
 # Values for the cert-manager Helm chart.
-# crds.enabled installs the cert-manager CRDs along with the chart.
+# crds.enabled installs the extra object types cert-manager needs along with the chart.
 crds:
   enabled: true
