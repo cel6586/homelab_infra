@@ -3,7 +3,7 @@
 #   helm upgrade --install argocd argo/argo-cd -n argocd -f apps/argocd/values.yaml
 configs:
   params:
-    # Traefik already does the HTTPS, so Argo serves plain http 
+    # Traefik already does the HTTPS, so Argo serves plain http
     server.insecure: true
   cm:
     # Traefik doesn't set an address on Ingresses so Argo waits on them forever
