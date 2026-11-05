@@ -1,0 +1,21 @@
+# Installs GitLab on the gitlab VM and everything it needs
+- name: Install GitLab on the gitlab server
+  hosts: gitlab_server
+  tasks:
+    - name: Download GitLab setup script
+      ansible.builtin.get_url:
+        url: https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh
+        dest: /tmp/gitlab-repo.sh
+        mode: "0755"
+
+    - name: Add the GitLab package repo
+      ansible.builtin.command: /tmp/gitlab-repo.sh
+      args:
+        creates: /etc/apt/sources.list.d/gitlab_gitlab-ce.list
+
+    - name: Install GitLab
+      ansible.builtin.apt:
+        name: gitlab-ce
+        update_cache: true
+      environment:
+        EXTERNAL_URL: "http://gitlab.homelab.internal"
