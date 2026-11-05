@@ -32,3 +32,22 @@ prometheus:
           resources:
             requests:
               storage: 10Gi
+alertmanager:
+  alertmanagerSpec:
+    # mounts the secret into the pod at /etc/alertmanager/secrets/alertmanager-discord/
+    secrets:
+      - alertmanager-discord
+  config:
+    route:
+      receiver: discord
+      group_by: [alertname, namespace]
+      routes:
+        # Watchdog always fires on purpose and InfoInhibitor is noise, send them nowhere
+        - receiver: "null"
+          matchers:
+            - alertname =~ "Watchdog|InfoInhibitor"
+    receivers:
+      - name: "null"
+      - name: discord
+        discord_configs:
+          - webhook_url_file: /etc/alertmanager/secrets/alertmanager-discord/discord_webhook_url
