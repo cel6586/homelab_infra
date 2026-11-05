@@ -1,10 +1,11 @@
 # Set up alerts using prometheus for when anything goes wrong
 apiVersion: monitoring.coreos.com/v1
-kind: PrometheusRUle
-metaData:
+kind: PrometheusRule
+metadata:
   name: game-tracker-alerts
   namespace: game-tracker
   labels:
+    # Prometheus ignores rule files without this label (it's the Helm release name)
     release: monitoring
 spec:
   groups:
@@ -18,6 +19,7 @@ spec:
           annotations:
             summary: "{{ $labels.deployment }} has no running pods"
         - alert: GameTrackerBackupMissing
+          # seconds since the last good backup. 25h = daily job plus an hour of slack
           expr: time() - kube_cronjob_status_last_successful_time{namespace="game-tracker"} > 25 * 3600
           for: 15m
           labels:

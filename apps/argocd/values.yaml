@@ -1,7 +1,13 @@
+# Values for the argo-cd Helm chart.
+# Argo doesn't manage its own install, so changes here need a manual:
+#   helm upgrade --install argocd argo/argo-cd -n argocd -f apps/argocd/values.yaml
 configs:
   params:
+    # Traefik already does the HTTPS, so Argo serves plain http 
     server.insecure: true
   cm:
+    # Traefik doesn't set an address on Ingresses so Argo waits on them forever
+    # monitoring was stuck on grafana's. Setting them to healthy fixed issue
     resource.customizations.health.networking.k8s.io_Ingress: |
       hs = {}
       hs.status = "Healthy"

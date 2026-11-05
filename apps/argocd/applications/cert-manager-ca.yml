@@ -1,3 +1,5 @@
+# Applies the private CA from apps/cert-manager/ca. Kept apart from the chart install
+# because the issuers can only be created once cert-manager's CRDs exist.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:

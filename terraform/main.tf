@@ -1,3 +1,5 @@
+# Creates one VM for every entry in var.vms by cloning the Ubuntu template.
+# IP, user and ssh key are set through cloud-init so ansible can log in right away.
 resource "proxmox_virtual_environment_vm" "vm" {
   for_each = var.vms
 
@@ -11,7 +13,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
 
   cpu {
     cores = each.value.cores
-    type  = "host"
+    type  = "host" # passes the real CPU through, faster than the default emulated one
   }
 
   memory {
@@ -47,6 +49,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
       keys     = var.ssh_public_keys
     }
   }
+  # lets Proxmox see the VM's IP. Needs qemu-guest-agent inside, ansible common.yml installs it
   agent {
     enabled = true
   }

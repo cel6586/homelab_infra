@@ -1,8 +1,11 @@
+# Values for the vault Helm chart. Single pod, data on the VM disk.
+# A VM rebuild wipes Vault, so keep the unseal keys and secrets saved somewhere else.
 ui:
   enabled: true
 
 server:
   dataStorage:
+    # microk8s hostpath, so it lives on the VM disk
     storageClass: microk8s-hostpath
   ingress:
     enabled: true

@@ -1,3 +1,5 @@
+# Installs Vault from the hashicorp Helm chart. Settings are in apps/vault/values.yml.
+# Vault comes up sealed after every restart, unseal it by hand.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -25,6 +27,8 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - RespectIgnoreDifferences=true
+  # the injector rewrites its own caBundle after install. Without this the app
+  # shows OutOfSync forever
   ignoreDifferences:
     - group: admissionregistration.k8s.io
       kind: MutatingWebhookConfiguration

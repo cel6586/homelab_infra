@@ -1,3 +1,4 @@
+# Installs Alloy, which reads the pod logs and ships them to Loki.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:

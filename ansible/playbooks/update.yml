@@ -1,3 +1,4 @@
+# Full package upgrade on every server.
 - name: Update all servers
   hosts: all
   tasks:

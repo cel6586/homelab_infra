@@ -1,3 +1,5 @@
+# Network and template defaults for the homelab.
+# ssh_public_keys and vms have no default, they have to be set in a tfvars file.
 variable "node_name" {
   description = "Proxmox node that hosts the VM"
   type        = string

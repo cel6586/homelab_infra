@@ -1,3 +1,4 @@
+# Namespace for the game-tracker app.
 apiVersion: v1
 kind: Namespace
 metadata:

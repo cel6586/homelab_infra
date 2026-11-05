@@ -1,3 +1,5 @@
+# Basics for every VM: common tools, the guest agent (so Proxmox can see the VM),
+# timezone and automatic security updates.
 - name: Common Setup for all servers
   hosts: all
   tasks:

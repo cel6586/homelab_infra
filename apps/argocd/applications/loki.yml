@@ -1,3 +1,4 @@
+# Installs Loki, which stores the pod logs. Values are in apps/observability/loki-values.yaml.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:

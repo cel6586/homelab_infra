@@ -1,3 +1,5 @@
+# Applies apps/game-tracker: the namespace, its ExternalSecrets and the alerts.
+# The app itself is still deployed by the CI job in the game-tracker repo.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -8,6 +10,7 @@ spec:
   source:
     repoURL: https://github.com/cel6586/homelab_infra
     targetRevision: main
+    # only reads files directly in this folder. first-setup-manifests-do-not-use is skipped on purpose
     path: apps/game-tracker
   destination:
     server: https://kubernetes.default.svc
