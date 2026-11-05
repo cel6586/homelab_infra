@@ -32,6 +32,15 @@ prometheus:
           resources:
             requests:
               storage: 10Gi
+# MicroK8s runs these as services on the VM, not as pods, so Prometheus can't find
+# them and the KubeProxyDown / KubeSchedulerDown / KubeControllerManagerDown alerts
+# fire forever. The cluster itself is fine. Turning them off removes the alerts too.
+kubeProxy:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeControllerManager:
+  enabled: false
 alertmanager:
   alertmanagerSpec:
     # mounts the secret into the pod at /etc/alertmanager/secrets/alertmanager-discord/
