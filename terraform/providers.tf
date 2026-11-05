@@ -8,7 +8,8 @@ terraform {
   }
 }
 
+# Proxmox API on the ProDesk
 provider "proxmox" {
   endpoint = "https://10.0.0.253:8006/"
-  insecure = true
+  insecure = true # proxmox uses a self-signed cert, fine on the home network
 }

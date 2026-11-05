@@ -1,3 +1,5 @@
+# Watches apps/argocd/applications/ so any Application file merged
+# there gets created by Argo automatically. Applied by hand once, Argo runs it after that.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:

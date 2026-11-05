@@ -1,3 +1,7 @@
+# Private CA for the homelab. The selfsigned issuer makes the CA cert, then the
+# homelab-ca issuer signs the certs for *.homelab.internal.
+# The CA cert has to be trusted on my PC or the browser shows a warning.
+# only used once, to sign the CA cert below
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
@@ -14,7 +18,7 @@ spec:
   isCA: true
   commonName: homelab-ca
   secretName: homelab-ca-secret
-  duration: 87600h
+  duration: 87600h # 10 years, so the CA doesn't expire on me
   privateKey:
     algorithm: ECDSA
     size: 256
@@ -22,6 +26,7 @@ spec:
     name: selfsigned
     kind: ClusterIssuer
 ---
+# the ingresses point at this one (cert-manager.io/cluster-issuer: homelab-ca)
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:

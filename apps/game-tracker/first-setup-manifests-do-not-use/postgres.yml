@@ -1,3 +1,5 @@
+# Old hand-written Postgres manifests from the first setup, kept for reference only.
+# Argo skips this folder and the app now deploys with Helm from CI.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

@@ -1,3 +1,5 @@
+# Installs kube-prometheus-stack (Prometheus, Grafana, Alertmanager). Values are in apps/observability/values.yaml.
+# Chart version is pinned. If you bump it, bump it in .github/workflows/checks.yml too.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -24,4 +26,5 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      # the CRDs are too big for a normal apply
       - ServerSideApply=true

@@ -1,3 +1,4 @@
+# Installs cert-manager, which hands out the TLS certs for the ingresses.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:

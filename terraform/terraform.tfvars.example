@@ -1,0 +1,20 @@
+# Copy this to terraform.tfvars and fill in the real values.
+# terraform.tfvars is gitignored so it never gets pushed.
+
+# Contents of the .pub key files, one string per key.
+# One for logging in by hand, one for ansible.
+ssh_public_keys = [
+  "ssh-ed25519 AAAA...paste-your-first-public-key... me",
+  "ssh-ed25519 AAAA...paste-your-ansible-public-key... ansible",
+]
+
+# One entry per VM. memory is in MB, disk_size is in GB.
+vms = {
+  example-vm = {
+    vm_id     = 100
+    cores     = 2
+    memory    = 2048
+    disk_size = 20
+    ip        = "10.0.0.10"
+  }
+}

@@ -1,3 +1,5 @@
+# Old hand-written API manifest from the first setup, kept for reference only.
+# Argo skips this folder and the app now deploys with Helm from CI.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
