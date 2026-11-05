@@ -26,5 +26,5 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      # the CRDs are too big for a normal apply
+      # some of the things it installs are too big for a normal apply
       - ServerSideApply=true
