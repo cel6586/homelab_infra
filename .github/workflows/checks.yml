@@ -1,0 +1,69 @@
+# PR checks for the infra repo.  Scans for any bad code before merging to main:
+#   secret-scan    - leaked secrets in the code or git history
+#   yaml-lint      - broken YAML (rules in .yamllint)
+#   manifest-check - manifests that don't match the k8s schemas
+#   helm-render    - charts that fail to render with our values files
+name: Test Homelab
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # full history, otherwise gitleaks only sees the latest commit
+          fetch-depth: 0
+
+      - uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  yaml-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: pip install yamllint
+      - run: yamllint apps .github
+  manifest-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install kubeconform
+        run: curl -sL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar xz
+      # Only real manifests go here.
+      # -ignore-missing-schemas skips custom types the catalog doesn't know.
+      - name: Validate
+        run: |
+          ./kubeconform -strict -summary -ignore-missing-schemas \
+            -schema-location default \
+            -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+            apps/argocd/root.yml apps/argocd/applications apps/external-secrets apps/cert-manager/ca apps/game-tracker/namespace.yml apps/game-tracker/external-secrets.yml
+  helm-render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Add chart repos
+        run: |
+          helm repo add hashicorp https://helm.releases.hashicorp.com
+          helm repo add jetstack https://charts.jetstack.io
+          helm repo add external-secrets https://charts.external-secrets.io
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo add argo https://argoproj.github.io/argo-helm
+          helm repo update
+      # Versions must match the targetRevision in apps/argocd/applications/.
+      # If you bump a chart there, bump it here too.
+      - name: Render
+        run: |
+          helm template vault hashicorp/vault --version 0.34.1 -f apps/vault/values.yml > /dev/null
+          helm template cert-manager jetstack/cert-manager --version v1.21.3 -f apps/cert-manager/values.yaml > /dev/null
+          helm template external-secrets external-secrets/external-secrets --version 2.14.0 > /dev/null
+          helm template monitoring prometheus-community/kube-prometheus-stack --version 92.17.0 -f apps/observability/values.yaml > /dev/null
+          helm template loki grafana/loki --version 7.5.0 -f apps/observability/loki-values.yaml > /dev/null
+          helm template alloy grafana/alloy --version 1.15.0 -f apps/observability/alloy-values.yaml > /dev/null
+          helm template argocd argo/argo-cd --version 10.12.1 -f apps/argocd/values.yaml > /dev/null
