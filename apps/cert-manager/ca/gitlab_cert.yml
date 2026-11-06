@@ -1,0 +1,19 @@
+# Certificate for the GitLab VM. GitLab isn't in the cluster, so cert-manager only
+# makes the cert here and I copy it onto the VM.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: gitlab
+  namespace: cert-manager
+spec:
+  secretName: gitlab-tls
+  dnsNames:
+    - gitlab.homelab.internal
+    - registry.homelab.internal
+  duration: 8760h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: homelab-ca
+    kind: ClusterIssuer
