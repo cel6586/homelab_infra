@@ -29,3 +29,18 @@ The ExternalSecrets showed `InvalidProviderConfig` and no secrets were being cre
 
 ## Alerts firing for kube-proxy, scheduler and controller manager
 Right after I set up the Discord alerts I got `KubeProxyDown`, `KubeSchedulerDown` and `KubeControllerManagerDown`. MicroK8s runs those as services on the VM, not as pods, so Prometheus can't find them even though the cluster is fine. I set `kubeProxy`, `kubeScheduler` and `kubeControllerManager` to `enabled: false` in `apps/observability/values.yaml`.
+
+## git push to GitLab said Permission denied (publickey)
+My key was already added in GitLab, but git and ssh still got Permission denied. SSH only tries the default key names and mine is called homelab. I made a ~/.ssh/config file that tells it to use the homelab key for gitlab.homelab.internal.
+
+## Registering the GitLab runner failed with no such host
+The register command couldn't find gitlab.homelab.internal. Only my PC knew that name, not the gitlab VM itself. I added it to the VM's hosts file. The job containers don't use that file either, so I also added extra_hosts to the runner's config.toml.
+
+## The GitLab deploy failed with x509: certificate signed by unknown authority
+The helm step in the deploy job couldn't talk to GitLab because its container doesn't trust my homelab CA. The runner already hands the CA to every job as a file, so I pointed helm at it with SSL_CERT_FILE in the deploy script.
+
+## The GitLab deploy hung with ImagePullBackOff
+The deploy job just sat there for over 4 minutes. The migrate pod was stuck on ImagePullBackOff and the error said it couldn't find gitlab.homelab.internal. The k8s VM only knew the registry name, not the GitLab one. I added gitlab.homelab.internal to the k8s VM's hosts file, deleted the stuck migrate job and ran the deploy again.
+
+## Force push to GitLab was declined
+I reset main and tried to force push, but GitLab said pre-receive hook declined. It protects main from force pushes by default. I turned on Allow force push for main under Settings > Repository, pushed, then turned it back off.
