@@ -24,6 +24,12 @@ grafana:
 prometheus:
   prometheusSpec:
     retention: 7d
+    additionalScrapeConfigs:
+      - job_name: gitlab-node
+        static_configs:
+          - targets: ["10.0.0.251:9100"]
+            labels:
+              instance: gitlab
     storageSpec:
       volumeClaimTemplate:
         spec:
