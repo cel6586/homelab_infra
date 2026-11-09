@@ -26,7 +26,7 @@ Single node MicroK8s cluster and will host the game-tracker app.  the same VM ru
 The second VM will run Gitlab and a CI runner for the pipelines jobs.
 
 # VM 3 - Docker services
-This will hold plain Docker services like Jellyfin/Plex, Uptime Kuma and Watchtower.
+This will hold plain Docker services like Jellyfin/Plex and Uptime Kuma.
 
 # VM 4 - Game server
 Game server that faces the internet.  If there is a game im wanting to host, and if there is room for it
