@@ -66,3 +66,24 @@ alertmanager:
       - name: discord
         discord_configs:
           - webhook_url_file: /etc/alertmanager/secrets/alertmanager-discord/discord_webhook_url
+# GitLab alerts, switched off because the gitlab VM may be turned off on purpose.
+# GitLabDown would fire every time. To use them, remove the # at the start of each line.
+# additionalPrometheusRulesMap:
+#   gitlab:
+#     groups:
+#       - name: gitlab
+#         rules:
+#           - alert: GitLabDown
+#             expr: up{job="gitlab-node"} == 0
+#             for: 5m
+#             labels:
+#               severity: critical
+#             annotations:
+#               summary: Can't reach the GitLab VM metrics for 5 minutes
+#           - alert: GitLabDiskFilling
+#             expr: node_filesystem_avail_bytes{job="gitlab-node",mountpoint="/"} / node_filesystem_size_bytes{job="gitlab-node",mountpoint="/"} < 0.15
+#             for: 10m
+#             labels:
+#               severity: warning
+#             annotations:
+#               summary: The GitLab VM disk has less than 15% free
