@@ -45,7 +45,7 @@ Decision: Use GitLab CI for the real pipelines. Jenkins may be tried later as pr
 Why: GitLab already includes CI, so Jenkins would be a second system to run and update, and it needs 2 GB or more of RAM on a 32 GB machine. Jenkins is still widely used, so it is worth trying once there is time and RAM.
 
 ## Docker services on their own VM
-Decision: Run Jellyfin/Plex, Uptime Kuma and Watchtower as plain Docker services on a separate VM.
+Decision: Run Jellyfin/Plex and Uptime Kuma as plain Docker services on a separate VM.
 Why: They are simple and do not need Kubernetes. Keeping them apart means rebuilding the Kubernetes VM does not take them down.
 
 ## Game server on its own VM, later
