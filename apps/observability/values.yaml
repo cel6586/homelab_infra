@@ -30,6 +30,11 @@ prometheus:
           - targets: ["10.0.0.251:9100"]
             labels:
               instance: gitlab
+      - job_name: docker-services-node
+        static_configs:
+          - targets: ["10.0.0.252:9100"]
+            labels:
+              instance: docker-services
     storageSpec:
       volumeClaimTemplate:
         spec:

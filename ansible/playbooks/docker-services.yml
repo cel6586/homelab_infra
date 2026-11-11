@@ -1,6 +1,8 @@
 # Installs docker services
 - name: Install Docker Services
   hosts: docker_server
+  vars_files:
+    - ../vars/garage-secrets.yml
   tasks:
     - name: Install Docker
       ansible.builtin.apt:
@@ -32,3 +34,122 @@
           - "3001:3001"
         volumes:
           - uptime-kuma:/app/data
+
+    - name: Create garage folders
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - /var/lib/garage/data
+        - /var/lib/garage/meta
+
+    - name: Write the garage config
+      ansible.builtin.template:
+        src: garage.toml
+        dest: /etc/garage.toml
+        mode: "0600"
+      no_log: true
+
+    - name: Run garage
+      community.docker.docker_container:
+        name: garage
+        image: dxflrs/garage:v2.5.0
+        restart_policy: unless-stopped
+        ports:
+          - "3900:3900"
+        volumes:
+          - /etc/garage.toml:/etc/garage.toml
+          - /var/lib/garage/data:/var/lib/garage/data
+          - /var/lib/garage/meta:/var/lib/garage/meta
+
+    - name: Add the garage command
+      ansible.builtin.copy:
+        dest: /usr/local/bin/garage
+        content: |
+          #!/bin/sh
+          exec docker exec -ti garage /garage "$@"
+        mode: "0755"
+
+    - name: get the garage node id
+      ansible.builtin.command: docker exec garage /garage node id
+      register: node_id
+      changed_when: false
+      retries: 10
+      delay: 3
+      until: node_id.rc == 0
+
+    - name: Show the current layout
+      ansible.builtin.command: docker exec garage /garage layout show
+      register: layout
+      changed_when: false
+
+    - name: Assign the node a zone and capacity
+      ansible.builtin.command: >
+        docker exec garage /garage layout assign -z dc1 -c 6G
+        {{ node_id.stdout.split('@')[0] }}
+      when: "'dc1' not in layout.stdout"
+
+    - name: Apply the layout
+      ansible.builtin.command: docker exec garage /garage layout apply --version 1
+      when: "'dc1' not in layout.stdout"
+
+    - name: Check if the bucket exists
+      ansible.builtin.command: docker exec garage /garage bucket info pg-backups
+      register: bucket_info
+      failed_when: false
+      changed_when: false
+
+    - name: Create the bucket
+      ansible.builtin.command: docker exec garage /garage bucket create pg-backups
+      when: bucket_info.rc != 0
+
+    - name: Check if the backup key exists
+      ansible.builtin.command: docker exec garage /garage key info pg-backup-key
+      register: key_info
+      failed_when: false
+      changed_when: false
+
+    - name: Create the backup key
+      ansible.builtin.command: docker exec garage /garage key create pg-backup-key
+      when: key_info.rc != 0
+      no_log: true
+
+    - name: Let the key read and write the bucket
+      ansible.builtin.command: >
+        docker exec garage /garage bucket allow --read --write
+        pg-backups --key pg-backup-key
+      changed_when: false
+
+    - name: Run Dozzle
+      community.docker.docker_container:
+        name: dozzle
+        image: amir20/dozzle:v11.4.2
+        restart_policy: unless-stopped
+        ports:
+          - "8080:8080"
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock:ro
+
+    - name: Run Portainer
+      community.docker.docker_container:
+        name: portainer
+        image: portainer/portainer-ce:2.45.3
+        restart_policy: unless-stopped
+        ports:
+          - "9443:9443"
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+          - portainer_data:/data
+
+    - name: Run node_exporter
+      community.docker.docker_container:
+        name: node-exporter
+        image: quay.io/prometheus/node-exporter:v1.12.1
+        restart_policy: unless-stopped
+        network_mode: host
+        pid_mode: host
+        volumes:
+          - /:/host:ro,rslave
+        command:
+          - --path.rootfs=/host
