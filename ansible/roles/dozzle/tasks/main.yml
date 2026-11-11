@@ -1,0 +1,15 @@
+# Dozzle: web page that shows live logs of every container
+- name: Run Dozzle
+  community.docker.docker_container:
+    name: dozzle
+    image: "amir20/dozzle:{{ dozzle_version }}"
+    restart_policy: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.dozzle.rule: "Host(`dozzle.{{ base_domain }}`)"
+      traefik.http.routers.dozzle.entrypoints: websecure
+      traefik.http.services.dozzle.loadbalancer.server.port: "8080"

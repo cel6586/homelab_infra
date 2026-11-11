@@ -1,0 +1,16 @@
+# Portainer: web page to see and manage containers
+- name: Run Portainer
+  community.docker.docker_container:
+    name: portainer
+    image: "portainer/portainer-ce:{{ portainer_version }}"
+    restart_policy: unless-stopped
+    ports:
+      - "9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.portainer.rule: "Host(`portainer.{{ base_domain }}`)"
+      traefik.http.routers.portainer.entrypoints: websecure
+      traefik.http.services.portainer.loadbalancer.server.port: "9000"

@@ -1,0 +1,23 @@
+# Healthchecks: alerts me when a scheduled job stops checking in
+- name: Run Healthchecks
+  community.docker.docker_container:
+    name: healthchecks
+    image: "healthchecks/healthchecks:{{ healthchecks_version }}"
+    restart_policy: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - healthchecks_data:/data
+    env:
+      SECRET_KEY: "{{ healthchecks_secret_key }}"
+      ALLOWED_HOSTS: "healthcheck.{{ base_domain }},10.0.0.252"
+      SITE_ROOT: "https://healthcheck.{{ base_domain }}"
+      DB: sqlite
+      DB_NAME: /data/hc.sqlite
+      REGISTRATION_OPEN: "False"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.healthchecks.rule: "Host(`healthcheck.{{ base_domain }}`)"
+      traefik.http.routers.healthchecks.entrypoints: websecure
+      traefik.http.services.healthchecks.loadbalancer.server.port: "8000"
+  no_log: true

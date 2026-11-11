@@ -1,0 +1,7 @@
+# Ansible collections this project needs, pinned to the versions I tested.
+# Install them with: ansible-galaxy collection install -r requirements.yml
+collections:
+  - name: community.docker
+    version: 5.4.0
+  - name: community.general
+    version: 13.5.0

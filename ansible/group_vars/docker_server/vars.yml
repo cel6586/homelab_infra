@@ -1,0 +1,6 @@
+# Variables for the docker_server group. The secret values are in vault.yml
+# (encrypted with Ansible Vault); each name here points at its vault_ twin.
+base_domain: deadlab.org
+garage_rpc_secret: "{{ vault_garage_rpc_secret }}"
+cloudflare_dns_token: "{{ vault_cloudflare_dns_token }}"
+healthchecks_secret_key: "{{ vault_healthchecks_secret_key }}"

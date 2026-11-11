@@ -1,0 +1,15 @@
+# Uptime Kuma: pings my other servers and sends a Discord message when one goes down
+- name: Run Uptime Kuma
+  community.docker.docker_container:
+    name: uptime-kuma
+    image: "louislam/uptime-kuma:{{ uptime_kuma_version }}"
+    restart_policy: unless-stopped
+    ports:
+      - "3001:3001"
+    volumes:
+      - uptime-kuma:/app/data
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.uptime.rule: "Host(`uptime.{{ base_domain }}`)"
+      traefik.http.routers.uptime.entrypoints: websecure
+      traefik.http.services.uptime.loadbalancer.server.port: "3001"
