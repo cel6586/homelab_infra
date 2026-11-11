@@ -1,0 +1,17 @@
+# Vaultwarden: password manager, reached through Traefik at pass.{{ base_domain }}
+# Change SIGNUPS_ALLOWED to "false" once my account exists
+- name: Run Vaultwarden
+  community.docker.docker_container:
+    name: vaultwarden
+    image: "vaultwarden/server:{{ vaultwarden_version }}"
+    restart_policy: unless-stopped
+    env:
+      DOMAIN: "https://pass.{{ base_domain }}"
+      SIGNUPS_ALLOWED: "true"
+    volumes:
+      - vaultwarden_data:/data
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.vaultwarden.rule: "Host(`pass.{{ base_domain }}`)"
+      traefik.http.routers.vaultwarden.entrypoints: websecure
+      traefik.http.services.vaultwarden.loadbalancer.server.port: "80"

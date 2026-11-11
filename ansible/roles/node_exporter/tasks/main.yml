@@ -1,0 +1,12 @@
+# node_exporter: sends this VM's CPU, RAM and disk numbers to Prometheus
+- name: Run node_exporter
+  community.docker.docker_container:
+    name: node-exporter
+    image: "quay.io/prometheus/node-exporter:{{ node_exporter_version }}"
+    restart_policy: unless-stopped
+    network_mode: host
+    pid_mode: host
+    volumes:
+      - /:/host:ro,rslave
+    command:
+      - --path.rootfs=/host

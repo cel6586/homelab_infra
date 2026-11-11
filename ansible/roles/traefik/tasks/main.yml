@@ -1,0 +1,35 @@
+# Traefik: receives web traffic on 80/443, gets the HTTPS certificate from
+# Let's Encrypt (proved through Cloudflare DNS) and sends each name to its container.
+- name: Create the Traefik certificate folder
+  ansible.builtin.file:
+    path: /etc/traefik/letsencrypt
+    state: directory
+    mode: "0700"
+
+- name: Run Traefik
+  community.docker.docker_container:
+    name: traefik
+    image: "traefik:{{ traefik_version }}"
+    restart_policy: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    env:
+      CF_DNS_API_TOKEN: "{{ cloudflare_dns_token }}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/traefik/letsencrypt:/letsencrypt
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.websecure.http.tls.certresolver=letsencrypt
+      - --entrypoints.websecure.http.tls.domains[0].main={{ base_domain }}
+      - --entrypoints.websecure.http.tls.domains[0].sans=*.{{ base_domain }}
+      - --certificatesresolvers.letsencrypt.acme.email=celhomelab@proton.me
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
+  no_log: true

@@ -1,0 +1,21 @@
+# Installs Docker and lets the ubuntu user run it
+- name: Install Docker
+  ansible.builtin.apt:
+    name: docker.io
+    update_cache: true
+
+- name: Start docker and keep it running
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Let the ubuntu user run Docker
+  ansible.builtin.user:
+    name: ubuntu
+    groups: docker
+    append: true
+
+- name: Install the Python Docker library that Ansible needs
+  ansible.builtin.apt:
+    name: python3-docker
