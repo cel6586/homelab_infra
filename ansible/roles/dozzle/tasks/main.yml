@@ -6,8 +6,11 @@
     restart_policy: unless-stopped
     ports:
       - "8080:8080"
+    env:
+      DOZZLE_AUTH_PROVIDER: simple
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - dozzle_data:/data
     labels:
       traefik.enable: "true"
       traefik.http.routers.dozzle.rule: "Host(`dozzle.{{ base_domain }}`)"

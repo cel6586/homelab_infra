@@ -1,0 +1,4 @@
+# Variables for the gitlab_server group. The secret values are in vault.yml
+# (encrypted with Ansible Vault); each name here points at its vault_ twin.
+aws_access_key_id: "{{ vault_aws_access_key_id }}"
+aws_secret_access_key: "{{ vault_aws_secret_access_key }}"

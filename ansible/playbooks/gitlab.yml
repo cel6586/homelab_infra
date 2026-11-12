@@ -1,98 +1,18 @@
-# Installs GitLab on the gitlab VM and everything it needs
-- name: Install GitLab on the gitlab server
+# Builds the gitlab VM. Each piece is a role in ../roles
+# Run one role with: --tags <role name>
+# docker_base must come before gitlab_runner, because the runner uses Docker.
+# gitlab_backup uses the "Reconfigure GitLab" handler from the gitlab role, so it stays in this play.
+# The AWS keys for the backup are in group_vars/gitlab_server/vault.yml, so run with --ask-vault-pass.
+- name: Set up the gitlab server
   hosts: gitlab_server
-  tasks:
-    - name: Download GitLab setup script
-      ansible.builtin.get_url:
-        url: https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh
-        dest: /tmp/gitlab-repo.sh
-        mode: "0755"
-
-    - name: Add the GitLab package repo
-      ansible.builtin.command: /tmp/gitlab-repo.sh
-      args:
-        creates: /etc/apt/sources.list.d/gitlab_gitlab-ce.list
-
-    - name: Install GitLab
-      ansible.builtin.apt:
-        name: gitlab-ce
-        update_cache: true
-      environment:
-        EXTERNAL_URL: "http://gitlab.homelab.internal"
-
-    - name: Make the VM resolve the GitLab and registry names
-      ansible.builtin.lineinfile:
-        path: /etc/hosts
-        line: "10.0.0.251 {{ item }}"
-      loop:
-        - gitlab.homelab.internal
-        - registry.homelab.internal
-      become: true
-
-    - name: Set the GitLab HTTPS and registry settings
-      ansible.builtin.lineinfile:
-        path: /etc/gitlab/gitlab.rb
-        regexp: "{{ item.regexp }}"
-        line: "{{ item.line }}"
-      loop:
-        - regexp: "^external_url"
-          line: "external_url 'https://gitlab.homelab.internal'"
-        - regexp: "^#? ?registry_external_url"
-          line: "registry_external_url 'https://registry.homelab.internal'"
-        - regexp: "^#? ?letsencrypt\\['enable'\\]"
-          line: "letsencrypt['enable'] = false"
-      become: true
-      notify: Reconfigure GitLab
-
-    - name: Create the GitLab SSL folder
-      ansible.builtin.file:
-        path: /etc/gitlab/ssl
-        state: directory
-        mode: "0755"
-
-    - name: Read the GitLab certificate from the cluster
-      ansible.builtin.command: kubectl get secret gitlab-tls -n cert-manager -o json
-      delegate_to: localhost
-      become: false
-      changed_when: false
-      register: gitlab_tls
-      no_log: true
-
-    - name: Pick the certificate and key out of the secret
-      ansible.builtin.set_fact:
-        gitlab_tls_data: "{{ (gitlab_tls.stdout | from_json).data }}"
-      no_log: true
-
-    - name: Write the GitLab certificate files
-      ansible.builtin.copy:
-        content: "{{ gitlab_tls_data[item.field] | b64decode }}"
-        dest: "/etc/gitlab/ssl/{{ item.dest }}"
-        mode: "{{ item.mode }}"
-      loop:
-        - { field: tls.crt, dest: gitlab.homelab.internal.crt, mode: "0644" }
-        - { field: tls.key, dest: gitlab.homelab.internal.key, mode: "0600" }
-        - { field: tls.crt, dest: registry.homelab.internal.crt, mode: "0644" }
-        - { field: tls.key, dest: registry.homelab.internal.key, mode: "0600" }
-      no_log: true
-      notify: Reconfigure GitLab
-
-    - name: Trust the homelab CA on the VM
-      ansible.builtin.copy:
-        content: "{{ gitlab_tls_data['ca.crt'] | b64decode }}"
-        dest: /usr/local/share/ca-certificates/homelab-ca.crt
-        mode: "0644"
-      notify: Update CA certificates
-
-    - name: Let Prometheus read the VM metrics
-      ansible.builtin.lineinfile:
-        path: /etc/gitlab/gitlab.rb
-        regexp: "^#? ?node_exporter\\['listen_address'\\]"
-        line: "node_exporter['listen_address'] = '0.0.0.0:9100'"
-      notify: Reconfigure GitLab
-
-  handlers:
-    - name: Reconfigure GitLab
-      ansible.builtin.command: gitlab-ctl reconfigure
-      become: true
-    - name: Update CA certificates
-      ansible.builtin.command: update-ca-certificates
+  roles:
+    - role: common
+      tags: common
+    - role: gitlab
+      tags: gitlab
+    - role: docker_base
+      tags: docker_base
+    - role: gitlab_runner
+      tags: gitlab_runner
+    - role: gitlab_backup
+      tags: gitlab_backup
