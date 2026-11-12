@@ -3,6 +3,8 @@
 - name: Install Docker Services
   hosts: docker_server
   roles:
+    - role: common
+      tags: common
     - role: docker_base
       tags: docker_base
     - role: uptime_kuma

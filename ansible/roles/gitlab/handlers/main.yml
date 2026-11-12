@@ -1,0 +1,8 @@
+# Handlers only run when a task that notifies them changed something
+- name: Reconfigure GitLab
+  ansible.builtin.command: gitlab-ctl reconfigure
+  changed_when: true
+
+- name: Update CA certificates
+  ansible.builtin.command: update-ca-certificates
+  changed_when: true

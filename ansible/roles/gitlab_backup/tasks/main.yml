@@ -1,0 +1,38 @@
+# Nightly GitLab backups on the gitlab VM, keeping 7 days.
+# aws_access_key_id and aws_secret_access_key come from group_vars/gitlab_server/vault.yml.
+# The "Reconfigure GitLab" handler is in the gitlab role, so both roles must be in the same play.
+- name: Keep backups for 7 days
+  ansible.builtin.lineinfile:
+    path: /etc/gitlab/gitlab.rb
+    regexp: "^#? ?gitlab_rails\\['backup_keep_time'\\]"
+    line: "gitlab_rails['backup_keep_time'] = 604800"
+  notify: Reconfigure GitLab
+
+- name: Upload each backup to the S3 bucket
+  ansible.builtin.blockinfile:
+    path: /etc/gitlab/gitlab.rb
+    marker: "# {mark} ANSIBLE MANAGED: backup upload"
+    block: |
+      gitlab_rails['backup_upload_connection'] = {
+        'provider' => 'AWS',
+        'region' => 'us-east-2',
+        'aws_access_key_id' => '{{ aws_access_key_id }}',
+        'aws_secret_access_key' => '{{ aws_secret_access_key }}'
+      }
+      gitlab_rails['backup_upload_remote_directory'] = 'craig-homelab-gitlab-backup-000978831369-us-east-2-an'
+  no_log: true
+  notify: Reconfigure GitLab
+
+- name: Back up GitLab data every night at 02:00
+  ansible.builtin.cron:
+    name: gitlab data backup
+    minute: "0"
+    hour: "2"
+    job: /usr/bin/gitlab-backup create CRON=1
+
+- name: Back up GitLab settings every night at 02:30
+  ansible.builtin.cron:
+    name: gitlab config backup
+    minute: "30"
+    hour: "2"
+    job: /usr/bin/gitlab-ctl backup-etc --delete-old-backups

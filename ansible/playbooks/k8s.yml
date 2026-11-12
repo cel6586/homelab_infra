@@ -1,0 +1,9 @@
+# Builds the k8s VM. Each piece is a role in ../roles
+# Run one role with: --tags <role name>
+- name: Set up the k8s server
+  hosts: k8s_server
+  roles:
+    - role: common
+      tags: common
+    - role: microk8s
+      tags: microk8s

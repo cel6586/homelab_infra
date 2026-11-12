@@ -1,0 +1,10 @@
+# Builds every VM. Run one VM with: --limit <group name>, for example --limit docker_server
+# Needs --ask-vault-pass, because the docker_server and gitlab_server groups have a vault.yml.
+- name: Build the k8s VM
+  ansible.builtin.import_playbook: k8s.yml
+
+- name: Build the gitlab VM
+  ansible.builtin.import_playbook: gitlab.yml
+
+- name: Build the docker-services VM
+  ansible.builtin.import_playbook: docker-services.yml

@@ -1,0 +1,23 @@
+# Installs the GitLab Runner on the gitlab server. Docker comes from the docker_base role,
+# which must run before this one.
+- name: Download GitLab Runner setup script
+  ansible.builtin.get_url:
+    url: https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh
+    dest: /tmp/gitlab-runner-repo.sh
+    mode: "0755"
+
+- name: Add the GitLab Runner package repo
+  ansible.builtin.command: /tmp/gitlab-runner-repo.sh
+  args:
+    creates: /etc/apt/sources.list.d/runner_gitlab-runner.list
+
+- name: Install GitLab Runner
+  ansible.builtin.apt:
+    name: gitlab-runner
+    update_cache: true
+
+- name: Let the runner use Docker
+  ansible.builtin.user:
+    name: gitlab-runner
+    groups: docker
+    append: true
