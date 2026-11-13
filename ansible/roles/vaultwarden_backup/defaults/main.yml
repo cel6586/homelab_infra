@@ -1,0 +1,6 @@
+# Image versions the backup script uses
+vaultwarden_backup_alpine_version: "3.20"
+vaultwarden_backup_aws_cli_version: "2.39.3"
+# Where the backups go (the Garage bucket made in the garage role)
+vaultwarden_backup_endpoint: "http://10.0.0.252:3900"
+vaultwarden_backup_bucket: vaultwarden-backups

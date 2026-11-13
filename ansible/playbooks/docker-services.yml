@@ -25,3 +25,5 @@
       tags: traefik
     - role: vaultwarden
       tags: vaultwarden
+    - role: vaultwarden_backup
+      tags: vaultwarden_backup

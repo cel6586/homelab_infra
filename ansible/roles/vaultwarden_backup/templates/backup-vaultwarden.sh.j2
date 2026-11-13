@@ -1,0 +1,20 @@
+#!/bin/sh
+# Backs up Vaultwarden to the Garage bucket. Written by Ansible (vaultwarden_backup role).
+set -eu
+
+STAMP=$(date +%Y-%m-%d-%H%M)
+WORK=$(mktemp -d)
+trap 'rm -rf "$WORK"' EXIT
+
+# Vaultwarden: ask it to make a safe copy of its database, then archive the data folder.
+docker exec vaultwarden /vaultwarden backup
+docker run --rm -v vaultwarden_data:/data -v "$WORK":/out alpine:{{ vaultwarden_backup_alpine_version }} \
+  sh -c "tar czf /out/vaultwarden-$STAMP.tar.gz --exclude='db.sqlite3*' -C /data . && rm -f /data/db_*.sqlite3"
+
+# Upload with the Garage key. Ansible writes it to /etc/vaultwarden-backup.env (root only, from the vault).
+docker run --rm --env-file /etc/vaultwarden-backup.env -e AWS_DEFAULT_REGION=garage \
+  -v "$WORK":/out amazon/aws-cli:{{ vaultwarden_backup_aws_cli_version }} \
+  --endpoint-url {{ vaultwarden_backup_endpoint }} \
+  s3 cp "/out/vaultwarden-$STAMP.tar.gz" "s3://{{ vaultwarden_backup_bucket }}/vaultwarden/"
+
+echo "Backup done: vaultwarden-$STAMP.tar.gz"

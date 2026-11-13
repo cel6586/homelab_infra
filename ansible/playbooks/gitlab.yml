@@ -14,5 +14,6 @@
       tags: docker_base
     - role: gitlab_runner
       tags: gitlab_runner
-    - role: gitlab_backup
-      tags: gitlab_backup
+    # Backups turned off, I don't need them. Un-comment to turn them back on.
+    # - role: gitlab_backup
+    #   tags: gitlab_backup
