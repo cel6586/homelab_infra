@@ -4,3 +4,5 @@ base_domain: deadlab.org
 garage_rpc_secret: "{{ vault_garage_rpc_secret }}"
 cloudflare_dns_token: "{{ vault_cloudflare_dns_token }}"
 healthchecks_secret_key: "{{ vault_healthchecks_secret_key }}"
+vaultwarden_backup_key_id: "{{ vault_vaultwarden_backup_key_id }}"
+vaultwarden_backup_key_secret: "{{ vault_vaultwarden_backup_key_secret }}"

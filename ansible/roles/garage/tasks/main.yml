@@ -85,3 +85,32 @@
     docker exec garage /garage bucket allow --read --write
     pg-backups --key pg-backup-key
   changed_when: false
+
+# A second bucket and key for the Vaultwarden backups (see the vaultwarden_backup role)
+- name: Check if the Vaultwarden backups bucket exists
+  ansible.builtin.command: docker exec garage /garage bucket info vaultwarden-backups
+  register: vaultwarden_bucket_info
+  failed_when: false
+  changed_when: false
+
+- name: Create the Vaultwarden backups bucket
+  ansible.builtin.command: docker exec garage /garage bucket create vaultwarden-backups
+  when: vaultwarden_bucket_info.rc != 0
+
+- name: Check if the Vaultwarden backup key exists
+  ansible.builtin.command: docker exec garage /garage key info vaultwarden-backup-key
+  register: vaultwarden_key_info
+  failed_when: false
+  changed_when: false
+  no_log: true
+
+- name: Create the Vaultwarden backup key
+  ansible.builtin.command: docker exec garage /garage key create vaultwarden-backup-key
+  when: vaultwarden_key_info.rc != 0
+  no_log: true
+
+- name: Let the Vaultwarden backup key read and write its bucket
+  ansible.builtin.command: >
+    docker exec garage /garage bucket allow --read --write
+    vaultwarden-backups --key vaultwarden-backup-key
+  changed_when: false

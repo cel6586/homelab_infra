@@ -1,0 +1,23 @@
+# Nightly backup of Vaultwarden into the Garage bucket.
+# Garage is on this same VM, so this protects against mistakes, not against the disk failing.
+- name: Write the Garage key file (only root can read it)
+  ansible.builtin.template:
+    src: backup-vaultwarden.env.j2
+    dest: /etc/vaultwarden-backup.env
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+
+- name: Write the backup script
+  ansible.builtin.template:
+    src: backup-vaultwarden.sh.j2
+    dest: /usr/local/bin/backup-vaultwarden.sh
+    mode: "0750"
+
+- name: Run the backup every night at 03:00
+  ansible.builtin.cron:
+    name: vaultwarden backup
+    minute: "0"
+    hour: "3"
+    job: /usr/local/bin/backup-vaultwarden.sh >> /var/log/backup-vaultwarden.log 2>&1
