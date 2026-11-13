@@ -39,7 +39,6 @@ config:
 flowchart TB
   visitors["Internet visitors"]
   cf["Cloudflare Tunnel"]
-  pc["My PC"]
   github["GitHub<br/>repos, Actions, GHCR"]
   s3["AWS S3"]
   igdb["IGDB"]
@@ -80,10 +79,6 @@ flowchart TB
 
   visitors --> cf --> cloudflared --> web --> api --> db
   api -->|"game search"| igdb
-  pc -->|"git push"| github
-  pc -->|"web pages, kubectl, Ansible"| k8s
-  pc -->|"git push, web pages, Ansible"| gl
-  pc -->|"web pages, Ansible"| ds
   github -->|"homelab_infra repo"| argo
   argo -->|"syncs"| managed
   github -->|"deploy job"| runner
@@ -100,7 +95,19 @@ flowchart TB
   prom -->|"scrapes"| dsnode
   gitlab -->|"jobs"| glrunner
   glrunner -.->|"practice pipeline"| gt
+
+  linkStyle default stroke:#6b7280,stroke-width:1.5px
+  linkStyle 17,18 stroke:none
+  classDef n fill:#ffffff,stroke:#555555,color:#000000
+  class visitors,cf,github,s3,igdb,runner,argo,cloudflared,certm,eso,vault,prom,loki,web,api,db,backupjob,gitlab,glrunner,glnode,garage,vw,vwb,dsnode,kuma,other n
+  style k8s fill:#cfe8ff,stroke:#2b6cb0,color:#000000
+  style managed fill:#e8f3ff,stroke:#2b6cb0,color:#000000
+  style gt fill:#e8f3ff,stroke:#2b6cb0,color:#000000
+  style gl fill:#ffe0b3,stroke:#c05621,color:#000000
+  style ds fill:#d4f4d4,stroke:#2f855a,color:#000000
 ```
+
+I work on all of it from my PC: `git push`, `kubectl`, Ansible, and the web page of each service.
 
 Vault and External Secrets supply secrets to the cluster, cert-manager issues the certificates, Prometheus, Loki and Alloy monitor everything in the cluster, and `cloudflared` carries the public traffic. Argo CD keeps all of these in sync from this repo.
 
