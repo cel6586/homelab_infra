@@ -1,4 +1,8 @@
 # Values for the Jenkins Helm chart. Jenkins runs in the cluster and runs builds in pods.
+serviceAccountAgent:
+  create: true
+  name: jenkins-agent
+  
 controller:
   # controller itself runs no builds, only the agent pods do
   numExecutors: 0
