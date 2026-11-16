@@ -1,0 +1,28 @@
+# Values for the Jenkins Helm chart. Jenkins runs in the cluster and runs builds in pods.
+controller:
+  # controller itself runs no builds, only the agent pods do
+  numExecutors: 0
+
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      memory: 2Gi
+
+  additionalPlugins:
+    - github-branch-source:1986.v801e40614d00
+
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: homelab-ca
+    hostName: jenkins.homelab.internal
+    tls:
+      - secretName: jenkins-tls
+        hosts:
+          - jenkins.homelab.internal
+
+persistence:
+  storageClass: microk8s-hostpath
