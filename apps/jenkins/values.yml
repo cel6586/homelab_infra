@@ -2,6 +2,8 @@
 controller:
   # controller itself runs no builds, only the agent pods do
   numExecutors: 0
+  admin:
+    existingSecret: jenkins-admin
 
   resources:
     requests:
