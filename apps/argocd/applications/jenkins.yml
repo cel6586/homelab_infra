@@ -1,0 +1,27 @@
+# Installs Jenkins from the Jenkins Helm chart. Settings are in apps/jenkins/values.yml.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jenkins
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://charts.jenkins.io
+      chart: jenkins
+      targetRevision: 5.13.3
+      helm:
+        valueFiles:
+          - $repo/apps/jenkins/values.yml
+    - repoURL: https://github.com/cel6586/homelab_infra
+      targetRevision: main
+      ref: repo
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: jenkins
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
